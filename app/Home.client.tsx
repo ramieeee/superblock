@@ -28,7 +28,13 @@ export default function HomeClient() {
 
   return (
     <div className={styles.HomeClient}>
-      <div className={styles.squareBox}>
+      <div
+        className={styles.squareBox}
+        style={{
+          gridTemplateColumns: `repeat(${M}, 1fr)`,
+          gridTemplateRows: `repeat(${M}, 1fr)`,
+        }}
+      >
         {squares.map((square, idx) => {
           return (
             <>

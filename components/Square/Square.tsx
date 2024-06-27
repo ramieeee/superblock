@@ -20,7 +20,7 @@ export default function Square({ value, connectionCnt, onClick }: SquareProps) {
         alignItems: "center",
         justifyContent: "center",
         cursor: "pointer",
-        border: "1px solid #000",
+        border: "0.5px solid #000",
       }}
       onClick={onClick}
     >
