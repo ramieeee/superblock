@@ -9,11 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@types/react": "npm:types-react@rc",
+    "@types/react-dom": "npm:types-react-dom@rc",
     "next": "14.2.4",
     "react": "19.0.0-rc-8971381549-20240625",
     "react-dom": "19.0.0-rc-8971381549-20240625",
-	"@types/react": "npm:types-react@rc",
-    "@types/react-dom": "npm:types-react-dom@rc"
+    "sass": "^1.77.6"
   },
   "overrides": {
     "@types/react": "npm:types-react@rc",
