@@ -13,8 +13,8 @@ export default function Square({ value, connectionCnt, onClick }: SquareProps) {
     <div
       className={styles.Square}
       style={{
-        width: "30px",
-        height: "30px",
+        width: "50px",
+        height: "50px",
         backgroundColor: "#ffffff",
         display: "flex",
         alignItems: "center",
@@ -24,9 +24,9 @@ export default function Square({ value, connectionCnt, onClick }: SquareProps) {
       }}
       onClick={onClick}
     >
-      {value === 1 ? (
-        <Image src={Balloon} alt="Balloon" width={20} height={20} />
-      ) : null}
+      {value === 1 && (
+        <Image src={Balloon} alt="Balloon" width={30} height={30} />
+      )}
     </div>
   );
 }
