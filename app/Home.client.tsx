@@ -5,7 +5,7 @@ import styles from "./HomeClient.module.scss";
 
 // components
 import Square from "@/components/Square/Square";
-import { group } from "console";
+import Modal from "@/components/Modal/Modal";
 
 type SquareType = {
   id: number;
@@ -20,6 +20,9 @@ export default function HomeClient() {
   const [groupConnectionCount, setGroupConnectionCount] = useState<number[]>([
     0,
   ]);
+
+  const [isOver, setIsOver] = useState(false);
+  const [message, setMessage] = useState("Game Over");
 
   const M = 6;
 
@@ -136,6 +139,7 @@ export default function HomeClient() {
   };
 
   const handleClick = (square: SquareType) => {
+    if (isOver) return;
     const groupIdx = square.groupId;
     const filteredGroup = updatedSquares.filter((square) => {
       return square.groupId === groupIdx;
@@ -151,12 +155,15 @@ export default function HomeClient() {
       setGroupConnectionCount(groupConnectionCount.slice(1));
     } else {
       // 패배 로직 해당 구역에 넣기
+      setIsOver(true);
     }
   };
 
+  // 게임을 성공적으로 끝낸 경우 실행 로직
   useEffect(() => {
     if (groupConnectionCount.length === 0) {
-      console.log("game over");
+      setMessage("Winner!");
+      setIsOver(true);
     }
   }, [groupConnectionCount]);
 
@@ -191,6 +198,7 @@ export default function HomeClient() {
               );
             })}
       </div>
+      <Modal title={message} isOver={isOver} />
     </div>
   );
 }
