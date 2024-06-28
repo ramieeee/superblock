@@ -16,10 +16,6 @@
     "react-dom": "19.0.0-rc-8971381549-20240625",
     "sass": "^1.77.6"
   },
-  "overrides": {
-    "@types/react": "npm:types-react@rc",
-    "@types/react-dom": "npm:types-react-dom@rc"
-  },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
