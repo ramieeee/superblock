@@ -26,19 +26,7 @@ export default function HomeClient() {
 
   const M = 6;
 
-  const generateSquares = () => {
-    const newSquares = Array.from({ length: M * M }, (_, idx) => {
-      return {
-        id: idx,
-        value: Math.random() > 0.6 ? 1 : 0, // 풍선이 있으면 1, 없으면 0
-        connectionCnt: 0, // 연결된 풍선의 개수
-        groupId: 0, // 연결된 풍선의 그룹 번호
-      };
-    });
-    setSquares(newSquares);
-  };
-
-  // 1. 60% 확률로 1이 나오도록 초기화
+  // 1.
   useEffect(() => {
     generateSquares();
   }, []);
@@ -57,7 +45,19 @@ export default function HomeClient() {
     }
   }, [squares]);
 
-  // 3. 경로 탐색 후 리턴
+  // 60% 확률로 1이 나오도록 초기화
+  const generateSquares = () => {
+    const newSquares = Array.from({ length: M * M }, (_, idx) => {
+      return {
+        id: idx,
+        value: Math.random() > 0.6 ? 1 : 0, // 풍선이 있으면 1, 없으면 0
+        connectionCnt: 0, // 연결된 풍선의 개수
+        groupId: 0, // 연결된 풍선의 그룹 번호
+      };
+    });
+    setSquares(newSquares);
+  };
+
   /** 경로 탐색 순서
    * 좌우상하 탐색
    * 이전에 이동한 위치인지 검색한다 (막다른 길일경우 queue에서 제거)
@@ -74,16 +74,20 @@ export default function HomeClient() {
     let hasAlreadyBeen = [-1]; // global 이동 경로
 
     for (const square of copiedSquares) {
-      // 풍선이 있을 경우에만 탐색
+      // 풍선이 있고 해당 경로를 처음으로 온 경우에만 실행
       if (square.value === 1 && !hasAlreadyBeen.includes(square.id)) {
         hasAlreadyBeen.push(square.id);
         let movingPath = [square.id]; // queue
-        let localPath = [square.id];
+        let localPath = [square.id]; // 그룹화를 위해 따로 선언.queue는 사라지고 hasAlreadyBeen은 global하기 때문
 
+        // queue가 모두 없어질때까지 전체 탐색
         while (movingPath.length > 0) {
+          // 현재 위치에서 좌표를 찾는다. 좌우가 막다른 길인것을 계산하기 위해
+          // scale을 column 수 만큼 줄여준다(scaledPos)
           const startPos = movingPath[0];
           const column = Math.floor(startPos / M);
           const scaledPos = startPos - column * M;
+
           // 다음 위치를 찾는다 (좌->우->상->하)
           const left = scaledPos === 0 ? null : copiedSquares[startPos - 1];
           const right =
@@ -91,7 +95,7 @@ export default function HomeClient() {
           const top = copiedSquares[startPos - M];
           const bottom = copiedSquares[startPos + M];
 
-          // 풍선이 있고 이전에 이동한 위치가 아니라면 이동하고 현재 위치 업데이트
+          // 풍선이 있고 이전에 이동한 위치가 아니라면 이동 경로에 추가
           if (left && left.value === 1 && !hasAlreadyBeen.includes(left.id)) {
             movingPath.push(left.id);
             hasAlreadyBeen.push(left.id);
@@ -130,6 +134,8 @@ export default function HomeClient() {
         for (const pos of localPath) {
           copiedSquares[pos].groupId = groupId;
         }
+
+        // 그룹화된 풍선들의 개수 파악
         const counts = copiedSquares.filter((square) => {
           return square.groupId === groupId;
         }).length;
@@ -138,16 +144,23 @@ export default function HomeClient() {
       }
     }
 
-    // 그룹화된 풍선들의 개수 세기
     return [copiedSquares, groupConnCnt];
   };
 
+  /** square를 클릭 시 실행 로직
+   * @param square
+   * @returns void
+   */
   const handleClick = (square: SquareType) => {
+    // 게임 끝난 경우 무효화
     if (isOver) return;
+
+    // 클릭한 square의 그룹 번호를 찾고
     const groupIdx = square.groupId;
     const filteredGroup = updatedSquares.filter((square) => {
       return square.groupId === groupIdx;
     });
+    // 그룹 번호의 수와 가장 많은 숫자가 같으면 해당 그룹 square의 value를 0으로 변경(풍선 제거)
     if (filteredGroup.length === groupConnectionCount[0]) {
       const copiedSquares = [...updatedSquares];
       for (const square of copiedSquares) {
@@ -157,8 +170,9 @@ export default function HomeClient() {
       }
       setUpdatedSquares(copiedSquares);
       setGroupConnectionCount(groupConnectionCount.slice(1));
-    } else {
-      // 패배 로직 해당 구역에 넣기
+    }
+    // 아닐 경우 패배
+    else {
       setIsOver(true);
       setMessage("Game Over");
     }
