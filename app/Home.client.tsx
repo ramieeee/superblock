@@ -17,9 +17,9 @@ type SquareType = {
 export default function HomeClient() {
   const [squares, setSquares] = useState<SquareType[]>([]);
   const [updatedSquares, setUpdatedSquares] = useState<SquareType[]>([]);
-  const [groupConnectionCount, setGroupConnectionCount] = useState<number[]>(
-    []
-  );
+  const [groupConnectionCount, setGroupConnectionCount] = useState<number[]>([
+    0,
+  ]);
 
   const M = 6;
 
@@ -56,7 +56,7 @@ export default function HomeClient() {
    * 이전에 이동한 위치인지 검색한다 (막다른 길일경우 queue에서 제거)
    * 이동한다
    * 이동한 현재 위치를 저장한다
-   * @return {copiedSquare: SquareType[]}
+   * @return {[copiedSquare: SquareType[], groupConnCnt: number[]]}
    */
   const search = () => {
     let copiedSquares = [...squares];
@@ -71,20 +71,18 @@ export default function HomeClient() {
       if (square.value === 1 && !hasAlreadyBeen.includes(square.id)) {
         hasAlreadyBeen.push(square.id);
         let movingPath = [square.id]; // queue
-        const startPos = movingPath[0];
-        const column = Math.floor(startPos / M);
-        const scaledPos = startPos - column * M;
-
         let localPath = [square.id];
 
         while (movingPath.length > 0) {
+          const startPos = movingPath[0];
+          const column = Math.floor(startPos / M);
+          const scaledPos = startPos - column * M;
           // 다음 위치를 찾는다 (좌->우->상->하)
-          const left =
-            scaledPos === 0 ? null : copiedSquares[movingPath[0] - 1];
+          const left = scaledPos === 0 ? null : copiedSquares[startPos - 1];
           const right =
-            scaledPos === M - 1 ? null : copiedSquares[movingPath[0] + 1];
-          const top = copiedSquares[movingPath[0] - M];
-          const bottom = copiedSquares[movingPath[0] + M];
+            scaledPos === M - 1 ? null : copiedSquares[startPos + 1];
+          const top = copiedSquares[startPos - M];
+          const bottom = copiedSquares[startPos + M];
 
           // 풍선이 있고 이전에 이동한 위치가 아니라면 이동하고 현재 위치 업데이트
           if (left && left.value === 1 && !hasAlreadyBeen.includes(left.id)) {
@@ -142,18 +140,28 @@ export default function HomeClient() {
     const filteredGroup = updatedSquares.filter((square) => {
       return square.groupId === groupIdx;
     });
-
     if (filteredGroup.length === groupConnectionCount[0]) {
-      // setUpdatedSquares(restSquares);
-      // setGroupConnectionCount(groupConnectionCount.slice(1));
+      const copiedSquares = [...updatedSquares];
+      for (const square of copiedSquares) {
+        if (square.groupId === groupIdx) {
+          square.value = 0;
+        }
+      }
+      setUpdatedSquares(copiedSquares);
+      setGroupConnectionCount(groupConnectionCount.slice(1));
     } else {
       // 패배 로직 해당 구역에 넣기
     }
   };
 
+  useEffect(() => {
+    if (groupConnectionCount.length === 0) {
+      console.log("game over");
+    }
+  }, [groupConnectionCount]);
+
   return (
     <div className={styles.HomeClient}>
-      <button onClick={() => console.log(updatedSquares)}>test</button>
       <div
         className={styles.squareBox}
         style={{
