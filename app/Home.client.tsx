@@ -26,8 +26,7 @@ export default function HomeClient() {
 
   const M = 6;
 
-  // 1. 60% 확률로 1이 나오도록 초기화
-  useEffect(() => {
+  const generateSquares = () => {
     const newSquares = Array.from({ length: M * M }, (_, idx) => {
       return {
         id: idx,
@@ -37,6 +36,11 @@ export default function HomeClient() {
       };
     });
     setSquares(newSquares);
+  };
+
+  // 1. 60% 확률로 1이 나오도록 초기화
+  useEffect(() => {
+    generateSquares();
   }, []);
 
   // 2. square가 완성되면 검색 실행 코드
@@ -156,7 +160,13 @@ export default function HomeClient() {
     } else {
       // 패배 로직 해당 구역에 넣기
       setIsOver(true);
+      setMessage("Game Over");
     }
+  };
+
+  const handleTryAgain = () => {
+    setIsOver(false);
+    generateSquares();
   };
 
   // 게임을 성공적으로 끝낸 경우 실행 로직
@@ -198,7 +208,7 @@ export default function HomeClient() {
               );
             })}
       </div>
-      <Modal title={message} isOver={isOver} />
+      <Modal title={message} isOver={isOver} onClick={handleTryAgain} />
     </div>
   );
 }

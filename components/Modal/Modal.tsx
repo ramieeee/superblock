@@ -1,9 +1,10 @@
 type ModalProps = {
   title: string;
   isOver: boolean;
+  onClick: () => void;
 };
 
-export default function Modal({ title, isOver }: ModalProps) {
+export default function Modal({ title, isOver, onClick }: ModalProps) {
   return (
     <>
       {isOver && (
@@ -35,6 +36,7 @@ export default function Modal({ title, isOver }: ModalProps) {
               justifyContent: "center",
               borderRadius: "10px",
             }}
+            onClick={onClick}
           >
             <span>Try again?</span>
           </div>
