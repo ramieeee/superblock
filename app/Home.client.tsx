@@ -1,6 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+// previous: 24ms 걸림
+// current:
+
+import { useState, useEffect } from "react";
 import styles from "./HomeClient.module.scss";
 
 // components
@@ -26,10 +29,23 @@ export default function HomeClient() {
 
   const M = 6;
 
-  // 1.
+  // 1. 초기 실행
   useEffect(() => {
     generateSquares();
   }, []);
+
+  // 60% 확률로 1이 나오도록 박스 초기화
+  const generateSquares = () => {
+    const newSquares = Array.from({ length: M * M }, (_, idx) => {
+      return {
+        id: idx,
+        value: Math.random() > 0.6 ? 1 : 0, // 풍선이 있으면 1, 없으면 0
+        connectionCnt: 0, // 연결된 풍선의 개수
+        groupId: 0, // 연결된 풍선의 그룹 번호
+      };
+    });
+    setSquares(newSquares);
+  };
 
   // 2. square가 완성되면 검색 실행 코드
   useEffect(() => {
@@ -45,23 +61,10 @@ export default function HomeClient() {
     }
   }, [squares]);
 
-  // 60% 확률로 1이 나오도록 초기화
-  const generateSquares = () => {
-    const newSquares = Array.from({ length: M * M }, (_, idx) => {
-      return {
-        id: idx,
-        value: Math.random() > 0.6 ? 1 : 0, // 풍선이 있으면 1, 없으면 0
-        connectionCnt: 0, // 연결된 풍선의 개수
-        groupId: 0, // 연결된 풍선의 그룹 번호
-      };
-    });
-    setSquares(newSquares);
-  };
-
   /** 경로 탐색 순서
    * 좌우상하 탐색
    * 이전에 이동한 위치인지 검색한다 (막다른 길일경우 queue에서 제거)
-   * 이동한다
+   * 이동할 수 있는 위치 검색 후 이동
    * 이동한 현재 위치를 저장한다
    * @return {[copiedSquare: SquareType[], groupConnCnt: number[]]}
    */
@@ -201,22 +204,20 @@ export default function HomeClient() {
         }}
       >
         {updatedSquares.length > 0
-          ? updatedSquares.map((square, idx) => {
+          ? updatedSquares.map((square) => {
               return (
                 <Square
                   key={square.id}
                   value={square.value}
-                  connectionCnt={square.connectionCnt}
                   onClick={() => handleClick(square)}
                 />
               );
             })
-          : squares.map((square, idx) => {
+          : squares.map((square) => {
               return (
                 <Square
                   key={square.id}
                   value={square.value}
-                  connectionCnt={square.connectionCnt}
                   onClick={() => {}}
                 />
               );

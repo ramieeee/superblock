@@ -4,11 +4,10 @@ import Balloon from "@/assets/balloon.svg";
 
 type SquareProps = {
   value: number;
-  connectionCnt: number;
   onClick: () => void;
 };
 
-export default function Square({ value, connectionCnt, onClick }: SquareProps) {
+export default function Square({ value, onClick }: SquareProps) {
   return (
     <div
       className={styles.Square}
