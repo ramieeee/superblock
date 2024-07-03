@@ -13,6 +13,7 @@
     "@types/react-dom": "npm:types-react-dom@rc",
     "next": "14.2.4",
     "react": "19.0.0-rc-8971381549-20240625",
+    "react-confetti-boom": "^1.0.0",
     "react-dom": "19.0.0-rc-8971381549-20240625",
     "sass": "^1.77.6"
   },

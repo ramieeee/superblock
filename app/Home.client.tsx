@@ -7,6 +7,8 @@ import styles from "./HomeClient.module.scss";
 import Square from "@/components/Square/Square";
 import Modal from "@/components/Modal/Modal";
 
+import Confetti from "react-confetti-boom";
+
 type SquareType = {
   id: number;
   value: number;
@@ -20,7 +22,7 @@ export default function HomeClient() {
   ]);
 
   const [isOver, setIsOver] = useState(false);
-  const [message, setMessage] = useState("Game Over");
+  const [message, setMessage] = useState("");
   const [errorSquare, setErrorSquare] = useState<number>();
 
   const M = 6;
@@ -163,6 +165,7 @@ export default function HomeClient() {
 
   const handleTryAgain = () => {
     setIsOver(false);
+    setMessage("");
     generateSquares();
   };
 
@@ -195,6 +198,7 @@ export default function HomeClient() {
         })}
       </div>
       <Modal title={message} isOver={isOver} onClick={handleTryAgain} />
+      {message === "Winner!" && <Confetti mode="boom" particleCount={50} />}
     </div>
   );
 }
