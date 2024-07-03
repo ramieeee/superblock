@@ -106,15 +106,14 @@ export default function HomeClient() {
           movingPath.shift();
         }
 
+        // 그룹화된 풍선들의 개수 파악
+        const counts = localPath.length;
+
         // 경로에서 이어졌던 풍선들을 그룹화
         for (const pos of localPath) {
           copiedSquares[pos].groupId = groupId;
         }
 
-        // 그룹화된 풍선들의 개수 파악
-        const counts = copiedSquares.filter((square) => {
-          return square.groupId === groupId;
-        }).length;
         connCnt.push(counts);
         groupId++;
       }
