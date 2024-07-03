@@ -1,8 +1,5 @@
 "use client";
 
-// previous: 24ms 걸림
-// current:
-
 import { useState, useEffect } from "react";
 import styles from "./HomeClient.module.scss";
 
@@ -13,12 +10,10 @@ import Modal from "@/components/Modal/Modal";
 type SquareType = {
   id: number;
   value: number;
-  connectionCnt: number;
   groupId: number;
 };
 
 export default function HomeClient() {
-  const [squares, setSquares] = useState<SquareType[]>([]);
   const [updatedSquares, setUpdatedSquares] = useState<SquareType[]>([]);
   const [groupConnectionCount, setGroupConnectionCount] = useState<number[]>([
     0,
@@ -29,45 +24,40 @@ export default function HomeClient() {
 
   const M = 6;
 
-  // 1. 초기 실행
   useEffect(() => {
     generateSquares();
   }, []);
 
-  // 60% 확률로 1이 나오도록 박스 초기화
   const generateSquares = () => {
-    const newSquares = Array.from({ length: M * M }, (_, idx) => {
+    // 1. 초기 실행
+    // 60% 확률로 1이 나오도록 박스 초기화
+    const squares: SquareType[] = Array.from({ length: M * M }, (_, idx) => {
       return {
         id: idx,
         value: Math.random() > 0.6 ? 1 : 0, // 풍선이 있으면 1, 없으면 0
-        connectionCnt: 0, // 연결된 풍선의 개수
         groupId: 0, // 연결된 풍선의 그룹 번호
       };
     });
-    setSquares(newSquares);
+
+    // 2. square가 완성되면 검색 실행 코드
+    const [data, groupConnCnt] = search(squares);
+    setUpdatedSquares(data as SquareType[]);
+
+    // 큰값부터 정렬
+    const count = groupConnCnt as number[];
+    const reversed = count.sort((a, b) => b - a);
+
+    setGroupConnectionCount(reversed);
   };
-
-  // 2. square가 완성되면 검색 실행 코드
-  useEffect(() => {
-    if (squares.length > 0) {
-      const [data, groupConnCnt] = search();
-      setUpdatedSquares(data as SquareType[]);
-
-      // 큰값부터 정렬
-      const count = groupConnCnt as number[];
-      const reversed = count.sort((a, b) => b - a);
-
-      setGroupConnectionCount(reversed);
-    }
-  }, [squares]);
 
   /** 경로 탐색 순서 (BFS)
    * 좌우상하 탐색
    * 이전에 이동한 위치인지 검색한다 (막다른 길일경우 queue에서 제거)
    * 이동할 수 있는 위치 검색 후 queue에 저장
-   * @return {[copiedSquare: SquareType[], groupConnCnt: number[]]}
+   * @param squares: SquareType[]
+   * @return copiedSquares, connCnt: SquareType[], number[]]
    */
-  const search = () => {
+  const search = (squares: SquareType[]) => {
     let copiedSquares = [...squares];
     // 일반적인 경로 탐색이 아닌 전체 탐색을 해야함
     // 갔던 경로를 모두 큐에 넣어 막혔을 경우 다음 경로로 넘어감
@@ -101,6 +91,8 @@ export default function HomeClient() {
           const validDirection = [left, right, top, bottom].filter((square) => {
             return square && square.value === 1;
           });
+
+          // 막혀있지 않고 이미 지나온 경로가 아니면 queue에 추가
           validDirection.forEach((square) => {
             if (square && !hasAlreadyBeen.includes(square.id)) {
               movingPath.push(square.id);
@@ -108,6 +100,8 @@ export default function HomeClient() {
               localPath.push(square.id);
             }
           });
+
+          // queue에서 하나씩 제거하며 queue가 없어질때가지 위의 로직을 반복
           movingPath.shift();
         }
 
@@ -129,7 +123,7 @@ export default function HomeClient() {
   };
 
   /** square를 클릭 시 실행 로직
-   * @param square
+   * @param square: SquareType
    * @returns void
    */
   const handleClick = (square: SquareType) => {
@@ -181,25 +175,15 @@ export default function HomeClient() {
           gridTemplateRows: `repeat(${M}, 1fr)`,
         }}
       >
-        {updatedSquares.length > 0
-          ? updatedSquares.map((square) => {
-              return (
-                <Square
-                  key={square.id}
-                  value={square.value}
-                  onClick={() => handleClick(square)}
-                />
-              );
-            })
-          : squares.map((square) => {
-              return (
-                <Square
-                  key={square.id}
-                  value={square.value}
-                  onClick={() => {}}
-                />
-              );
-            })}
+        {updatedSquares.map((square) => {
+          return (
+            <Square
+              key={square.id}
+              value={square.value}
+              onClick={() => handleClick(square)}
+            />
+          );
+        })}
       </div>
       <Modal title={message} isOver={isOver} onClick={handleTryAgain} />
     </div>
