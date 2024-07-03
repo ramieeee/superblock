@@ -1,0 +1,29 @@
+.ErrorSquare {
+  animation-name: shake;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0px);
+    background-color: #ffffff;
+    color: #ffffff;
+  }
+  20%,
+  80% {
+    transform: translateX(2px);
+  }
+  40%,
+  60% {
+    transform: translateX(-3px);
+    background-color: #eb9a9a;
+    color: #000000;
+  }
+  50% {
+    transform: translateX(5px);
+    background-color: #eb9a9a;
+    color: #000000;
+  }
+}

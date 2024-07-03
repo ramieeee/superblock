@@ -1,4 +1,4 @@
-import react from "react";
+import react, { useEffect } from "react";
 import styles from "./Square.module.scss";
 import Image from "next/image";
 import Balloon from "@/assets/balloon.svg";
@@ -6,12 +6,13 @@ import Balloon from "@/assets/balloon.svg";
 type SquareProps = {
   value: number;
   onClick: () => void;
+  isError: boolean;
 };
 
-function Square({ value, onClick }: SquareProps) {
+function Square({ value, onClick, isError }: SquareProps) {
   return (
     <div
-      className={styles.Square}
+      className={!isError ? styles.Square : styles.ErrorSquare}
       style={{
         width: "50px",
         height: "50px",
@@ -27,6 +28,7 @@ function Square({ value, onClick }: SquareProps) {
       {value === 1 && (
         <Image src={Balloon} alt="Balloon" width={30} height={30} />
       )}
+      {isError && <span>ouch!</span>}
     </div>
   );
 }

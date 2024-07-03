@@ -21,6 +21,7 @@ export default function HomeClient() {
 
   const [isOver, setIsOver] = useState(false);
   const [message, setMessage] = useState("Game Over");
+  const [errorSquare, setErrorSquare] = useState<number>();
 
   const M = 6;
 
@@ -129,6 +130,14 @@ export default function HomeClient() {
   const handleClick = (square: SquareType) => {
     // 게임 끝난 경우 무효화
     if (isOver) return;
+    // 풍선이 없는 경우 0.5초 동안 에러 표시만 하고 리턴
+    else if (square.value === 0) {
+      setErrorSquare(square.id);
+      setTimeout(() => {
+        setErrorSquare(undefined);
+      }, 500);
+      return;
+    }
 
     // 클릭한 square의 그룹 번호를 찾고
     const groupIdx = square.groupId;
@@ -146,7 +155,7 @@ export default function HomeClient() {
       setUpdatedSquares(copiedSquares);
       setGroupConnectionCount(groupConnectionCount.slice(1));
     }
-    // 아닐 경우 패배
+    // 순서가 맞지 않을 경우 패배
     else {
       setIsOver(true);
       setMessage("Game Over");
@@ -181,6 +190,7 @@ export default function HomeClient() {
               key={square.id}
               value={square.value}
               onClick={() => handleClick(square)}
+              isError={errorSquare === square.id}
             />
           );
         })}
