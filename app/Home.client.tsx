@@ -61,18 +61,17 @@ export default function HomeClient() {
     }
   }, [squares]);
 
-  /** 경로 탐색 순서
+  /** 경로 탐색 순서 (BFS)
    * 좌우상하 탐색
    * 이전에 이동한 위치인지 검색한다 (막다른 길일경우 queue에서 제거)
-   * 이동할 수 있는 위치 검색 후 이동
-   * 이동한 현재 위치를 저장한다
+   * 이동할 수 있는 위치 검색 후 queue에 저장
    * @return {[copiedSquare: SquareType[], groupConnCnt: number[]]}
    */
   const search = () => {
     let copiedSquares = [...squares];
     // 일반적인 경로 탐색이 아닌 전체 탐색을 해야함
     // 갔던 경로를 모두 큐에 넣어 막혔을 경우 다음 경로로 넘어감
-    let groupConnCnt = [];
+    let connCnt = [];
     let groupId = 1;
     let hasAlreadyBeen = [-1]; // global 이동 경로
 
@@ -98,39 +97,18 @@ export default function HomeClient() {
           const top = copiedSquares[startPos - M];
           const bottom = copiedSquares[startPos + M];
 
-          // 풍선이 있고 이전에 이동한 위치가 아니라면 이동 경로에 추가
-          if (left && left.value === 1 && !hasAlreadyBeen.includes(left.id)) {
-            movingPath.push(left.id);
-            hasAlreadyBeen.push(left.id);
-            localPath.push(left.id);
-          } else if (
-            right &&
-            right.value === 1 &&
-            !hasAlreadyBeen.includes(right.id)
-          ) {
-            movingPath.push(right.id);
-            hasAlreadyBeen.push(right.id);
-            localPath.push(right.id);
-          } else if (
-            top &&
-            top.value === 1 &&
-            !hasAlreadyBeen.includes(top.id)
-          ) {
-            movingPath.push(top.id);
-            hasAlreadyBeen.push(top.id);
-            localPath.push(top.id);
-          } else if (
-            bottom &&
-            bottom.value === 1 &&
-            !hasAlreadyBeen.includes(bottom.id)
-          ) {
-            movingPath.push(bottom.id);
-            hasAlreadyBeen.push(bottom.id);
-            localPath.push(bottom.id);
-          } else {
-            // queue에서 제거
-            movingPath.shift();
-          }
+          // 풍선이 있고 막혀있지 않은 경로 필터링
+          const validDirection = [left, right, top, bottom].filter((square) => {
+            return square && square.value === 1;
+          });
+          validDirection.forEach((square) => {
+            if (square && !hasAlreadyBeen.includes(square.id)) {
+              movingPath.push(square.id);
+              hasAlreadyBeen.push(square.id);
+              localPath.push(square.id);
+            }
+          });
+          movingPath.shift();
         }
 
         // 경로에서 이어졌던 풍선들을 그룹화
@@ -142,12 +120,12 @@ export default function HomeClient() {
         const counts = copiedSquares.filter((square) => {
           return square.groupId === groupId;
         }).length;
-        groupConnCnt.push(counts);
+        connCnt.push(counts);
         groupId++;
       }
     }
 
-    return [copiedSquares, groupConnCnt];
+    return [copiedSquares, connCnt];
   };
 
   /** square를 클릭 시 실행 로직

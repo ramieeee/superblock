@@ -1,3 +1,4 @@
+import react from "react";
 import styles from "./Square.module.scss";
 import Image from "next/image";
 import Balloon from "@/assets/balloon.svg";
@@ -7,7 +8,7 @@ type SquareProps = {
   onClick: () => void;
 };
 
-export default function Square({ value, onClick }: SquareProps) {
+function Square({ value, onClick }: SquareProps) {
   return (
     <div
       className={styles.Square}
@@ -29,3 +30,6 @@ export default function Square({ value, onClick }: SquareProps) {
     </div>
   );
 }
+
+// export default Square;
+export default react.memo(Square);
